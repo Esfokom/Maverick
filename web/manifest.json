@@ -1,11 +1,20 @@
 {
+<<<<<<< HEAD
     "name": "maverick",
     "short_name": "maverick",
+=======
+    "name": "newapp",
+    "short_name": "newapp",
+>>>>>>> 6e52787 (Added SignIn Page, SignUp page , Home screen)
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
+<<<<<<< HEAD
     "description": "A learning platform for students",
+=======
+    "description": "A new Flutter project.",
+>>>>>>> 6e52787 (Added SignIn Page, SignUp page , Home screen)
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
