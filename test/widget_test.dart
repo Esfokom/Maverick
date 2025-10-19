@@ -7,12 +7,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-<<<<<<< HEAD
 import 'package:maverick/main.dart';
-=======
-import 'package:newapp/main.dart';
->>>>>>> 6e52787 (Added SignIn Page, SignUp page , Home screen)
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
