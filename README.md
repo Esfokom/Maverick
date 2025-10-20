@@ -67,7 +67,7 @@ Below are screenshots of Maverick in action:
 
 ## Screen Recording
 
-https://github.com/your-repo/maverick/raw/main/public/screenrecordings/Maverick.mp4
+https://github.com/Esfokom/Maverick/raw/main/public/screenrecordings/Maverick.mp4
 
 <details>
   <summary>Click to view embedded video</summary>
