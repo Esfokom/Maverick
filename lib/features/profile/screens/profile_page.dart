@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
 import '../../home/data/mock_user_stats.dart';
 import '../../programs/data/mock_programs.dart';
 
@@ -9,24 +10,26 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: colorScheme.surface,
       body: CustomScrollView(
         slivers: [
-          _buildAppBar(context),
+          _buildAppBar(context, colorScheme),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildStatsSection(),
+                  _buildStatsSection(colorScheme),
                   const SizedBox(height: 24),
-                  _buildEnrolledProgramsSection(),
+                  _buildEnrolledProgramsSection(colorScheme),
                   const SizedBox(height: 24),
-                  _buildAchievementsSection(),
+                  _buildAchievementsSection(colorScheme),
                   const SizedBox(height: 24),
-                  _buildSettingsSection(context),
+                  _buildSettingsSection(context, colorScheme),
                   const SizedBox(height: 24),
                 ],
               ),
@@ -37,49 +40,48 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildAppBar(BuildContext context) {
+  Widget _buildAppBar(BuildContext context, ColorScheme colorScheme) {
     return SliverAppBar(
       expandedHeight: 200,
       pinned: true,
-      backgroundColor: Colors.blue[700],
+      backgroundColor: colorScheme.inverseSurface,
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Colors.blue[700]!, Colors.blue[500]!],
-            ),
-          ),
+          decoration: BoxDecoration(color: colorScheme.inverseSurface),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 40),
               CircleAvatar(
-                radius: 50,
-                backgroundColor: Colors.white,
-                child: Text(
-                  mockUserStats.userName[0].toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue[700],
+                backgroundColor: colorScheme.onInverseSurface,
+                radius: 30,
+                child: Center(
+                  child: Text(
+                    mockUserStats.userName[0].toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.inverseSurface,
+                    ),
                   ),
                 ),
               ),
               const SizedBox(height: 12),
               Text(
                 mockUserStats.userName,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: colorScheme.onInverseSurface,
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
+              Text(
                 'Learning Enthusiast',
-                style: TextStyle(fontSize: 16, color: Colors.white70),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: colorScheme.onInverseSurface.withValues(alpha: 0.7),
+                ),
               ),
             ],
           ),
@@ -88,37 +90,29 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+  Widget _buildStatsSection(ColorScheme colorScheme) {
+    return ShadCard(
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Learning Statistics',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Row(
             children: [
               Expanded(
                 child: _buildStatItem(
                   Icons.book_outlined,
                   '${mockUserStats.totalCoursesCompleted}',
-                  'Courses Completed',
-                  Colors.green,
+                  'Courses',
+                  colorScheme,
                 ),
               ),
               const SizedBox(width: 12),
@@ -126,8 +120,8 @@ class ProfilePage extends StatelessWidget {
                 child: _buildStatItem(
                   Icons.access_time,
                   '${mockUserStats.totalLearningHours}h',
-                  'Total Hours',
-                  Colors.orange,
+                  'Hours',
+                  colorScheme,
                 ),
               ),
             ],
@@ -138,9 +132,9 @@ class ProfilePage extends StatelessWidget {
               Expanded(
                 child: _buildStatItem(
                   Icons.local_fire_department,
-                  '${mockUserStats.currentStreak} days',
-                  'Current Streak',
-                  Colors.red,
+                  '${mockUserStats.currentStreak}',
+                  'Day Streak',
+                  colorScheme,
                 ),
               ),
               const SizedBox(width: 12),
@@ -149,7 +143,7 @@ class ProfilePage extends StatelessWidget {
                   Icons.emoji_events,
                   '12',
                   'Achievements',
-                  Colors.amber,
+                  colorScheme,
                 ),
               ),
             ],
@@ -163,69 +157,60 @@ class ProfilePage extends StatelessWidget {
     IconData icon,
     String value,
     String label,
-    Color color,
+    ColorScheme colorScheme,
   ) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Row(
+      child: Column(
         children: [
-          Icon(icon, color: color, size: 32),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  label,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
-              ],
+          Icon(icon, color: colorScheme.onSurface, size: 28),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
             ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildEnrolledProgramsSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+  Widget _buildEnrolledProgramsSection(ColorScheme colorScheme) {
+    return ShadCard(
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Current Program',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
           ),
           const SizedBox(height: 16),
           _buildProgramItem(
             mockPrograms[0].name,
             '${mockUserStats.currentProgramProgress.toInt()}% Complete',
             mockUserStats.currentProgramProgress / 100,
-            Colors.blue,
+            colorScheme,
           ),
         ],
       ),
@@ -236,7 +221,7 @@ class ProfilePage extends StatelessWidget {
     String name,
     String progress,
     double progressValue,
-    Color color,
+    ColorScheme colorScheme,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -247,74 +232,60 @@ class ProfilePage extends StatelessWidget {
             Expanded(
               child: Text(
                 name,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
                 ),
               ),
             ),
-            Text(
-              progress,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            ShadBadge(child: Text(progress)),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: LinearProgressIndicator(
             value: progressValue,
             minHeight: 8,
-            backgroundColor: Colors.grey[200],
-            valueColor: AlwaysStoppedAnimation<Color>(color),
+            backgroundColor: colorScheme.surfaceContainerHighest,
+            valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildAchievementsSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+  Widget _buildAchievementsSection(ColorScheme colorScheme) {
+    return ShadCard(
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Recent Achievements',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildAchievementBadge(
                 Icons.emoji_events,
                 'First Course',
-                Colors.amber,
+                colorScheme,
               ),
               _buildAchievementBadge(
                 Icons.local_fire_department,
                 '7 Day Streak',
-                Colors.red,
+                colorScheme,
               ),
-              _buildAchievementBadge(Icons.star, 'Fast Learner', Colors.purple),
-              _buildAchievementBadge(Icons.school, 'Scholar', Colors.blue),
+              _buildAchievementBadge(Icons.star, 'Fast Learner', colorScheme),
+              _buildAchievementBadge(Icons.school, 'Scholar', colorScheme),
             ],
           ),
         ],
@@ -322,24 +293,32 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildAchievementBadge(IconData icon, String label, Color color) {
+  Widget _buildAchievementBadge(
+    IconData icon,
+    String label,
+    ColorScheme colorScheme,
+  ) {
     return Column(
       children: [
         Container(
           width: 60,
           height: 60,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
+            color: colorScheme.primaryContainer,
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: color, size: 32),
+          child: Icon(icon, color: colorScheme.onPrimaryContainer, size: 28),
         ),
         const SizedBox(height: 8),
         SizedBox(
           width: 70,
           child: Text(
             label,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: colorScheme.onSurface,
+            ),
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -349,39 +328,50 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildSettingsSection(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+  Widget _buildSettingsSection(BuildContext context, ColorScheme colorScheme) {
+    return ShadCard(
+      padding: EdgeInsets.zero,
       child: Column(
         children: [
-          _buildSettingsTile(Icons.person_outline, 'Edit Profile', () {}),
-          _buildDivider(),
+          _buildSettingsTile(
+            Icons.person_outline,
+            'Edit Profile',
+            () {},
+            colorScheme,
+          ),
+          _buildDivider(colorScheme),
           _buildSettingsTile(
             Icons.notifications_outlined,
             'Notifications',
             () {},
+            colorScheme,
           ),
-          _buildDivider(),
-          _buildSettingsTile(Icons.lock_outline, 'Privacy & Security', () {}),
-          _buildDivider(),
-          _buildSettingsTile(Icons.help_outline, 'Help & Support', () {}),
-          _buildDivider(),
-          _buildSettingsTile(Icons.info_outline, 'About', () {}),
-          _buildDivider(),
-          _buildSettingsTile(Icons.logout, 'Logout', () {
-            _showLogoutDialog(context);
-          }, isDestructive: true),
+          _buildDivider(colorScheme),
+          _buildSettingsTile(
+            Icons.lock_outline,
+            'Privacy & Security',
+            () {},
+            colorScheme,
+          ),
+          _buildDivider(colorScheme),
+          _buildSettingsTile(
+            Icons.help_outline,
+            'Help & Support',
+            () {},
+            colorScheme,
+          ),
+          _buildDivider(colorScheme),
+          _buildSettingsTile(Icons.info_outline, 'About', () {}, colorScheme),
+          _buildDivider(colorScheme),
+          _buildSettingsTile(
+            Icons.logout,
+            'Logout',
+            () {
+              _showLogoutDialog(context, colorScheme);
+            },
+            colorScheme,
+            isDestructive: true,
+          ),
         ],
       ),
     );
@@ -390,51 +380,67 @@ class ProfilePage extends StatelessWidget {
   Widget _buildSettingsTile(
     IconData icon,
     String title,
-    VoidCallback onTap, {
+    VoidCallback onTap,
+    ColorScheme colorScheme, {
     bool isDestructive = false,
   }) {
     return ListTile(
-      leading: Icon(icon, color: isDestructive ? Colors.red : Colors.grey[700]),
+      leading: Icon(
+        icon,
+        color: isDestructive
+            ? colorScheme.error
+            : colorScheme.onSurface.withValues(alpha: 0.7),
+      ),
       title: Text(
         title,
         style: TextStyle(
-          color: isDestructive ? Colors.red : Colors.black,
+          color: isDestructive ? colorScheme.error : colorScheme.onSurface,
           fontWeight: FontWeight.w500,
         ),
       ),
-      trailing: Icon(Icons.chevron_right, color: Colors.grey[400]),
+      trailing: Icon(
+        Icons.chevron_right,
+        color: colorScheme.onSurface.withValues(alpha: 0.4),
+      ),
       onTap: onTap,
     );
   }
 
-  Widget _buildDivider() {
+  Widget _buildDivider(ColorScheme colorScheme) {
     return Divider(
       height: 1,
       thickness: 1,
-      color: Colors.grey[200],
+      color: colorScheme.surfaceContainerHighest,
       indent: 16,
       endIndent: 16,
     );
   }
 
-  void _showLogoutDialog(BuildContext context) {
+  void _showLogoutDialog(BuildContext context, ColorScheme colorScheme) {
     showDialog<void>(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('Logout'),
-          content: const Text('Are you sure you want to logout?'),
+          backgroundColor: colorScheme.surface,
+          title: Text('Logout', style: TextStyle(color: colorScheme.onSurface)),
+          content: Text(
+            'Are you sure you want to logout?',
+            style: TextStyle(color: colorScheme.onSurface),
+          ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: colorScheme.onSurface),
+              ),
             ),
             TextButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pop(dialogContext);
                 // Add logout logic here
               },
-              child: const Text('Logout', style: TextStyle(color: Colors.red)),
+              child: Text('Logout', style: TextStyle(color: colorScheme.error)),
             ),
           ],
         );
