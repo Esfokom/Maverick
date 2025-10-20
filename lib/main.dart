@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:country_picker/country_picker.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/auth/screens/signup_page.dart';
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return ShadApp(
       debugShowCheckedModeBanner: false,
       routes: {
         '/': (context) => const LoginScreen(),
@@ -27,6 +28,16 @@ class MyApp extends StatelessWidget {
             const NotificationsPage(notifications: []),
       },
       initialRoute: '/',
+      title: "Maverick",
+      theme: ShadThemeData(
+        colorScheme: ShadBlueColorScheme.light(),
+        brightness: Brightness.light,
+      ),
+      darkTheme: ShadThemeData(
+        colorScheme: ShadBlueColorScheme.dark(),
+        brightness: Brightness.dark,
+      ),
+      themeMode: ThemeMode.light,
     );
   }
 }
