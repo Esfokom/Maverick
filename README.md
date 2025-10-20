@@ -48,6 +48,33 @@ The bottom navigation bar is visible on main screens and includes:
 - **My Courses:** Shows the user's enrolled courses and progress.
 - **Profile:** Opens the Profile screen.
 
+## Screenshots
+
+Below are screenshots of Maverick in action:
+
+<table>
+  <tr>
+    <td><img src="public/screenshots/home.png" alt="Home" width="250"/></td>
+    <td><img src="public/screenshots/login.png" alt="Login" width="250"/></td>
+    <td><img src="public/screenshots/my_courses.png" alt="My Courses" width="250"/></td>
+  </tr>
+  <tr>
+    <td><img src="public/screenshots/profile.png" alt="Profile" width="250"/></td>
+    <td><img src="public/screenshots/programs_page.png" alt="Programs Page" width="250"/></td>
+    <td><img src="public/screenshots/signup.png" alt="Signup" width="250"/></td>
+  </tr>
+</table>
+
+## Screen Recording
+
+https://github.com/your-repo/maverick/raw/main/public/screenrecordings/Maverick.mp4
+
+<details>
+  <summary>Click to view embedded video</summary>
+
+  <video src="public/screenrecordings/Maverick.mp4" controls width="600"></video>
+</details>
+
 ## Summary
 
 Maverick is a comprehensive platform where learners can discover, enroll in, and track progress across a wide range of courses and programs. Built with Flutter, it offers a responsive, beautiful, and accessible experience for all users.
