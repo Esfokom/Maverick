@@ -106,10 +106,22 @@ class _MyCoursesPageState extends State<MyCoursesPage> {
 
     return Container(
       margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       decoration: BoxDecoration(
-        color: colorScheme.inverseSurface,
+        gradient: LinearGradient(
+          colors: [colorScheme.primary, colorScheme.primaryContainer],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withValues(alpha: 0.1),
+            spreadRadius: 2,
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,27 +131,37 @@ class _MyCoursesPageState extends State<MyCoursesPage> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: colorScheme.onInverseSurface,
+              color: colorScheme.onPrimary,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildStatItem(
                 totalCourses.toString(),
                 'Total',
-                colorScheme.onInverseSurface,
+                colorScheme.onPrimary,
+              ),
+              Container(
+                width: 1,
+                height: 40,
+                color: colorScheme.onPrimary.withValues(alpha: 0.2),
               ),
               _buildStatItem(
                 inProgressCourses.toString(),
                 'In Progress',
-                colorScheme.onInverseSurface,
+                colorScheme.onPrimary,
+              ),
+              Container(
+                width: 1,
+                height: 40,
+                color: colorScheme.onPrimary.withValues(alpha: 0.2),
               ),
               _buildStatItem(
                 completedCourses.toString(),
                 'Completed',
-                colorScheme.onInverseSurface,
+                colorScheme.onPrimary,
               ),
             ],
           ),

@@ -67,16 +67,17 @@ class _ProgramsPageState extends State<ProgramsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: const Text('Programs'), elevation: 0),
       body: Column(
         children: [
-          _buildSearchBar(),
+          _buildSearchBar(colorScheme),
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _filteredPrograms.isEmpty
-                ? _buildEmptyState()
+                ? _buildEmptyState(colorScheme)
                 : _buildProgramsList(),
           ),
         ],
@@ -84,7 +85,7 @@ class _ProgramsPageState extends State<ProgramsPage> {
     );
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildSearchBar(ColorScheme colorScheme) {
     return Container(
       padding: const EdgeInsets.all(16),
       child: TextField(
@@ -92,7 +93,7 @@ class _ProgramsPageState extends State<ProgramsPage> {
         onChanged: _filterPrograms,
         decoration: InputDecoration(
           hintText: 'Search programs...',
-          prefixIcon: const Icon(Icons.search),
+          prefixIcon: Icon(Icons.search, color: colorScheme.onSurfaceVariant),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
                   icon: const Icon(Icons.clear),
@@ -104,27 +105,31 @@ class _ProgramsPageState extends State<ProgramsPage> {
               : null,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           filled: true,
-          fillColor: Colors.grey[100],
+          fillColor: colorScheme.surfaceContainerHighest,
         ),
       ),
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(ColorScheme colorScheme) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
+          Icon(
+            Icons.search_off,
+            size: 64,
+            color: colorScheme.onSurface.withValues(alpha: 0.3),
+          ),
           const SizedBox(height: 16),
           Text(
             'No programs found',
-            style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+            style: TextStyle(fontSize: 18, color: colorScheme.onSurface),
           ),
           const SizedBox(height: 8),
           Text(
             'Try searching with different keywords',
-            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+            style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant),
           ),
         ],
       ),
@@ -183,10 +188,15 @@ class _ProgramCard extends StatelessWidget {
             program.thumbnailPath,
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
+              final colorScheme = Theme.of(context).colorScheme;
               return Container(
-                color: Colors.grey[300],
-                child: const Center(
-                  child: Icon(Icons.image_not_supported, size: 48),
+                color: colorScheme.surfaceContainerHighest,
+                child: Center(
+                  child: Icon(
+                    Icons.image_not_supported,
+                    size: 48,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 ),
               );
             },
@@ -197,41 +207,50 @@ class _ProgramCard extends StatelessWidget {
   }
 
   Widget _buildContent() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            program.name,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            program.shortDescription,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[700],
-              height: 1.4,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
+    return Builder(
+      builder: (context) {
+        final colorScheme = Theme.of(context).colorScheme;
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildInfoChip(Icons.schedule, program.duration, Colors.blue),
-              _buildInfoChip(
-                Icons.signal_cellular_alt,
-                program.difficulty.displayName,
-                _getDifficultyColor(),
+              Text(
+                program.name,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                program.shortDescription,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: colorScheme.onSurfaceVariant,
+                  height: 1.4,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _buildInfoChip(Icons.schedule, program.duration, Colors.blue),
+                  _buildInfoChip(
+                    Icons.signal_cellular_alt,
+                    program.difficulty.displayName,
+                    _getDifficultyColor(),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

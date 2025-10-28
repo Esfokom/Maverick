@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_highlight/flutter_highlight.dart';
+import 'package:flutter_highlight/themes/github.dart';
+import 'package:markdown/markdown.dart' as md;
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 import '../models/program.dart';
@@ -152,9 +155,11 @@ class _ModuleContentScreenState extends State<ModuleContentScreen> {
 
   Widget _buildModuleContent(ProgramModule module) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Markdown(
       data: module.content!,
+      builders: {'code': CodeElementBuilder(isDarkMode: isDarkMode)},
       styleSheet: MarkdownStyleSheet(
         h1: TextStyle(
           fontSize: 28,
@@ -179,14 +184,24 @@ class _ModuleContentScreenState extends State<ModuleContentScreen> {
         ),
         p: TextStyle(fontSize: 16, color: colorScheme.onSurface, height: 1.6),
         code: TextStyle(
-          backgroundColor: colorScheme.surfaceContainerHighest,
-          color: colorScheme.primary,
+          backgroundColor: isDarkMode
+              ? const Color(0xFF1F2937)
+              : const Color(0xFFF6F8FA),
+          color: isDarkMode ? const Color(0xFFE5E7EB) : const Color(0xFF24292F),
           fontFamily: 'monospace',
+          fontSize: 14,
         ),
         codeblockDecoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest,
+          color: isDarkMode ? const Color(0xFF0D1117) : const Color(0xFFF6F8FA),
           borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isDarkMode
+                ? const Color(0xFF30363D)
+                : const Color(0xFFD0D7DE),
+            width: 1,
+          ),
         ),
+        codeblockPadding: const EdgeInsets.all(16),
         blockquote: TextStyle(
           color: colorScheme.onSurface.withValues(alpha: 0.7),
           fontStyle: FontStyle.italic,
@@ -351,4 +366,163 @@ class _ModuleContentScreenState extends State<ModuleContentScreen> {
       ),
     );
   }
+}
+
+/// A custom markdown element builder for code blocks with syntax highlighting.
+class CodeElementBuilder extends MarkdownElementBuilder {
+  /// Creates a [CodeElementBuilder].
+  CodeElementBuilder({required this.isDarkMode});
+
+  /// Whether the app is in dark mode.
+  final bool isDarkMode;
+
+  @override
+  Widget? visitElementAfter(md.Element element, TextStyle? preferredStyle) {
+    var language = '';
+
+    if (element.attributes['class'] != null) {
+      final classes = element.attributes['class']!.split(' ');
+      // Look for language-* class
+      for (final className in classes) {
+        if (className.startsWith('language-')) {
+          language = className.substring(9);
+          break;
+        }
+      }
+    }
+
+    // Auto-detect language if not specified
+    if (language.isEmpty) {
+      final code = element.textContent;
+      language = _detectLanguage(code);
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDarkMode ? const Color(0xFF0D1117) : const Color(0xFFF6F8FA),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isDarkMode ? const Color(0xFF30363D) : const Color(0xFFD0D7DE),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Language label
+          if (language.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: isDarkMode
+                        ? const Color(0xFF30363D)
+                        : const Color(0xFFD0D7DE),
+                    width: 1,
+                  ),
+                ),
+              ),
+              child: Text(
+                language,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: isDarkMode
+                      ? const Color(0xFF8B949E)
+                      : const Color(0xFF57606A),
+                ),
+              ),
+            ),
+          // Code content with syntax highlighting
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: HighlightView(
+              element.textContent,
+              language: language,
+              theme: isDarkMode ? _githubDarkTheme : githubTheme,
+              padding: const EdgeInsets.all(16),
+              textStyle: const TextStyle(
+                fontFamily: 'monospace',
+                fontSize: 14,
+                height: 1.5,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Attempts to detect the programming language from code content.
+  String _detectLanguage(String code) {
+    // Simple heuristics for Python
+    if (code.contains('def ') ||
+        code.contains('import ') ||
+        code.contains('from ') ||
+        code.contains('class ') && code.contains('self') ||
+        code.contains('print(')) {
+      return 'python';
+    }
+
+    // Simple heuristics for JavaScript
+    if (code.contains('const ') ||
+        code.contains('let ') ||
+        code.contains('var ') ||
+        code.contains('function ') ||
+        code.contains('=>') ||
+        code.contains('console.log')) {
+      return 'javascript';
+    }
+
+    // Simple heuristics for Dart
+    if (code.contains('void ') ||
+        code.contains('class ') && code.contains('extends') ||
+        code.contains('Widget')) {
+      return 'dart';
+    }
+
+    return 'plaintext';
+  }
+
+  /// GitHub dark theme colors for syntax highlighting.
+  static final Map<String, TextStyle> _githubDarkTheme = {
+    'root': const TextStyle(
+      backgroundColor: Color(0xFF0D1117),
+      color: Color(0xFFE6EDF3),
+    ),
+    'comment': const TextStyle(color: Color(0xFF8B949E)),
+    'quote': const TextStyle(color: Color(0xFF8B949E)),
+    'keyword': const TextStyle(color: Color(0xFFFF7B72)),
+    'selector-tag': const TextStyle(color: Color(0xFF7EE787)),
+    'literal': const TextStyle(color: Color(0xFF79C0FF)),
+    'section': const TextStyle(color: Color(0xFF1F6FEB)),
+    'link': const TextStyle(color: Color(0xFF58A6FF)),
+    'subst': const TextStyle(color: Color(0xFFE6EDF3)),
+    'string': const TextStyle(color: Color(0xFFA5D6FF)),
+    'title': const TextStyle(color: Color(0xFFD2A8FF)),
+    'name': const TextStyle(color: Color(0xFFFFA657)),
+    'type': const TextStyle(color: Color(0xFFFFA657)),
+    'attribute': const TextStyle(color: Color(0xFF79C0FF)),
+    'symbol': const TextStyle(color: Color(0xFF79C0FF)),
+    'bullet': const TextStyle(color: Color(0xFF79C0FF)),
+    'built_in': const TextStyle(color: Color(0xFFFFA657)),
+    'addition': const TextStyle(color: Color(0xFF7EE787)),
+    'variable': const TextStyle(color: Color(0xFFFFA657)),
+    'template-tag': const TextStyle(color: Color(0xFF7EE787)),
+    'template-variable': const TextStyle(color: Color(0xFF7EE787)),
+    'meta': const TextStyle(color: Color(0xFF8B949E)),
+    'meta-keyword': const TextStyle(color: Color(0xFF8B949E)),
+    'meta-string': const TextStyle(color: Color(0xFFA5D6FF)),
+    'number': const TextStyle(color: Color(0xFF79C0FF)),
+    'doctag': const TextStyle(color: Color(0xFF8B949E)),
+    'params': const TextStyle(color: Color(0xFFE6EDF3)),
+    'function': const TextStyle(color: Color(0xFFD2A8FF)),
+    'class': const TextStyle(color: Color(0xFFFFA657)),
+    'tag': const TextStyle(color: Color(0xFF7EE787)),
+    'attr': const TextStyle(color: Color(0xFF79C0FF)),
+    'regexp': const TextStyle(color: Color(0xFF7EE787)),
+    'emphasis': const TextStyle(fontStyle: FontStyle.italic),
+    'strong': const TextStyle(fontWeight: FontWeight.bold),
+  };
 }
