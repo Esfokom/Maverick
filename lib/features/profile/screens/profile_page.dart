@@ -1,33 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
-import '../../home/data/mock_user_stats.dart';
-import '../../programs/data/mock_programs.dart';
+import '../../../core/providers/app_providers.dart';
 
 /// Displays the user's profile with statistics and settings.
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends ConsumerWidget {
   /// Creates a [ProfilePage].
   const ProfilePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
+    final userStats = ref.watch(userStatsProvider);
+    final enrolledPrograms = ref.watch(enrolledProgramsListProvider);
+    final currentProgram = ref.watch(currentProgramProvider);
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
       body: CustomScrollView(
         slivers: [
-          _buildAppBar(context, colorScheme),
+          _buildAppBar(context, colorScheme, userStats),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildStatsSection(colorScheme),
+                  _buildStatsSection(colorScheme, userStats),
                   const SizedBox(height: 24),
-                  _buildEnrolledProgramsSection(colorScheme),
+                  _buildEnrolledProgramsSection(
+                    colorScheme,
+                    enrolledPrograms,
+                    currentProgram,
+                  ),
                   const SizedBox(height: 24),
-                  _buildAchievementsSection(colorScheme),
+                  _buildAchievementsSection(colorScheme, userStats),
                   const SizedBox(height: 24),
                   _buildSettingsSection(context, colorScheme),
                   const SizedBox(height: 24),
@@ -40,7 +47,11 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildAppBar(BuildContext context, ColorScheme colorScheme) {
+  Widget _buildAppBar(
+    BuildContext context,
+    ColorScheme colorScheme,
+    UserStatsData userStats,
+  ) {
     return SliverAppBar(
       expandedHeight: 200,
       pinned: true,
@@ -57,7 +68,7 @@ class ProfilePage extends StatelessWidget {
                 radius: 30,
                 child: Center(
                   child: Text(
-                    mockUserStats.userName[0].toUpperCase(),
+                    userStats.userName[0].toUpperCase(),
                     style: TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
@@ -68,7 +79,7 @@ class ProfilePage extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                mockUserStats.userName,
+                userStats.userName,
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -90,7 +101,7 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsSection(ColorScheme colorScheme) {
+  Widget _buildStatsSection(ColorScheme colorScheme, UserStatsData userStats) {
     return ShadCard(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -110,7 +121,7 @@ class ProfilePage extends StatelessWidget {
               Expanded(
                 child: _buildStatItem(
                   Icons.book_outlined,
-                  '${mockUserStats.totalCoursesCompleted}',
+                  '${userStats.totalCoursesCompleted}',
                   'Courses',
                   colorScheme,
                 ),
@@ -119,7 +130,7 @@ class ProfilePage extends StatelessWidget {
               Expanded(
                 child: _buildStatItem(
                   Icons.access_time,
-                  '${mockUserStats.totalLearningHours}h',
+                  '${userStats.totalLearningHours}h',
                   'Hours',
                   colorScheme,
                 ),
@@ -132,7 +143,7 @@ class ProfilePage extends StatelessWidget {
               Expanded(
                 child: _buildStatItem(
                   Icons.local_fire_department,
-                  '${mockUserStats.currentStreak}',
+                  '${userStats.currentStreak}',
                   'Day Streak',
                   colorScheme,
                 ),
@@ -141,7 +152,7 @@ class ProfilePage extends StatelessWidget {
               Expanded(
                 child: _buildStatItem(
                   Icons.emoji_events,
-                  '12',
+                  '${userStats.totalAchievements}',
                   'Achievements',
                   colorScheme,
                 ),
@@ -191,14 +202,20 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildEnrolledProgramsSection(ColorScheme colorScheme) {
+  Widget _buildEnrolledProgramsSection(
+    ColorScheme colorScheme,
+    List<dynamic> enrolledPrograms,
+    dynamic currentProgram,
+  ) {
     return ShadCard(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Current Program',
+            enrolledPrograms.isEmpty
+                ? 'No Programs Enrolled'
+                : 'Enrolled Programs',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -206,69 +223,49 @@ class ProfilePage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          _buildProgramItem(
-            mockUserStats.currentProgramName,
-            '${mockUserStats.currentProgramProgress.toInt()}% Complete',
-            mockUserStats.currentProgramProgress / 100,
-            colorScheme,
-          ),
+          if (enrolledPrograms.isEmpty)
+            Text(
+              'Start your learning journey by enrolling in a program!',
+              style: TextStyle(
+                fontSize: 14,
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+            )
+          else
+            Text(
+              'Total: ${enrolledPrograms.length} ${enrolledPrograms.length == 1 ? "program" : "programs"}',
+              style: TextStyle(
+                fontSize: 14,
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildProgramItem(
-    String name,
-    String progress,
-    double progressValue,
+  Widget _buildAchievementsSection(
     ColorScheme colorScheme,
+    UserStatsData userStats,
   ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text(
-                name,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: colorScheme.onSurface,
-                ),
-              ),
-            ),
-            ShadBadge(child: Text(progress)),
-          ],
-        ),
-        const SizedBox(height: 12),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: LinearProgressIndicator(
-            value: progressValue,
-            minHeight: 8,
-            backgroundColor: colorScheme.surfaceContainerHighest,
-            valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAchievementsSection(ColorScheme colorScheme) {
     return ShadCard(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Recent Achievements',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: colorScheme.onSurface,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Recent Achievements',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+              ShadBadge(child: Text('${userStats.totalAchievements}')),
+            ],
           ),
           const SizedBox(height: 20),
           Row(

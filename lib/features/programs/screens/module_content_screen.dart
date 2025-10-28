@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/github.dart';
@@ -7,14 +8,16 @@ import 'package:markdown/markdown.dart' as md;
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 import '../models/program.dart';
+import '../../../core/providers/app_providers.dart';
 
 /// A screen that displays the content of a program module in markdown format.
-class ModuleContentScreen extends StatefulWidget {
+class ModuleContentScreen extends ConsumerStatefulWidget {
   /// Creates a [ModuleContentScreen].
   const ModuleContentScreen({
     required this.modules,
     required this.initialModuleIndex,
     required this.programName,
+    this.programId,
     super.key,
   });
 
@@ -27,11 +30,15 @@ class ModuleContentScreen extends StatefulWidget {
   /// The name of the program.
   final String programName;
 
+  /// The ID of the program (for tracking progress).
+  final String? programId;
+
   @override
-  State<ModuleContentScreen> createState() => _ModuleContentScreenState();
+  ConsumerState<ModuleContentScreen> createState() =>
+      _ModuleContentScreenState();
 }
 
-class _ModuleContentScreenState extends State<ModuleContentScreen> {
+class _ModuleContentScreenState extends ConsumerState<ModuleContentScreen> {
   late int _currentModuleIndex;
   late PageController _pageController;
 
@@ -46,6 +53,24 @@ class _ModuleContentScreenState extends State<ModuleContentScreen> {
   void dispose() {
     _pageController.dispose();
     super.dispose();
+  }
+
+  Future<void> _updateProgress(int moduleIndex) async {
+    if (widget.programId != null) {
+      // Update last module index
+      await ref
+          .read(lastModuleIndexProvider.notifier)
+          .updateLastModuleIndex(widget.programId!, moduleIndex);
+
+      // Calculate and update program progress
+      final totalModules = widget.modules.length;
+      final progress = ((moduleIndex + 1) / totalModules * 100)
+          .clamp(0.0, 100.0)
+          .toDouble();
+      await ref
+          .read(programProgressProvider.notifier)
+          .updateProgress(widget.programId!, progress);
+    }
   }
 
   void _goToNextModule() {
@@ -131,6 +156,7 @@ class _ModuleContentScreenState extends State<ModuleContentScreen> {
                 setState(() {
                   _currentModuleIndex = index;
                 });
+                _updateProgress(index);
               },
               itemCount: widget.modules.length,
               itemBuilder: (context, index) {

@@ -1,59 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
-import '../data/mock_enrolled_courses.dart';
-import '../models/enrolled_course.dart';
+import '../../programs/models/program.dart';
 import '../../programs/screens/program_detail_page.dart';
+import '../../programs/screens/module_content_screen.dart';
+import '../../../core/providers/app_providers.dart';
 
 /// Displays the user's enrolled courses with progress tracking.
-class MyCoursesPage extends StatefulWidget {
+class MyCoursesPage extends ConsumerStatefulWidget {
   /// Creates a [MyCoursesPage].
   const MyCoursesPage({super.key});
 
   @override
-  State<MyCoursesPage> createState() => _MyCoursesPageState();
+  ConsumerState<MyCoursesPage> createState() => _MyCoursesPageState();
 }
 
-class _MyCoursesPageState extends State<MyCoursesPage> {
+class _MyCoursesPageState extends ConsumerState<MyCoursesPage> {
   CourseFilter _currentFilter = CourseFilter.all;
-  List<EnrolledCourse> _enrolledCourses = [];
-  bool _isLoading = true;
 
-  @override
-  void initState() {
-    super.initState();
-    _loadCourses();
-  }
+  List<Program> _getFilteredCourses(List<Program> enrolledPrograms) {
+    final programProgress = ref.watch(programProgressProvider);
 
-  Future<void> _loadCourses() async {
-    try {
-      final courses = await loadEnrolledCourses();
-      setState(() {
-        _enrolledCourses = courses;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error loading courses: $e')));
-      }
-    }
-  }
-
-  List<EnrolledCourse> get _filteredCourses {
     switch (_currentFilter) {
       case CourseFilter.all:
-        return _enrolledCourses;
+        return enrolledPrograms;
       case CourseFilter.inProgress:
-        return _enrolledCourses
-            .where((c) => c.progress > 0 && c.progress < 100)
-            .toList();
+        return enrolledPrograms.where((p) {
+          final progress = programProgress[p.id] ?? 0.0;
+          return progress > 0 && progress < 100;
+        }).toList();
       case CourseFilter.completed:
-        return _enrolledCourses.where((c) => c.isCompleted).toList();
+        return enrolledPrograms.where((p) {
+          final progress = programProgress[p.id] ?? 0.0;
+          return progress >= 100;
+        }).toList();
     }
   }
 
@@ -61,18 +42,9 @@ class _MyCoursesPageState extends State<MyCoursesPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-
-    if (_isLoading) {
-      return Scaffold(
-        backgroundColor: colorScheme.surface,
-        appBar: AppBar(
-          title: const Text('My Courses'),
-          backgroundColor: colorScheme.surface,
-          elevation: 0,
-        ),
-        body: const Center(child: CircularProgressIndicator()),
-      );
-    }
+    final enrolledPrograms = ref.watch(enrolledProgramsListProvider);
+    final programProgress = ref.watch(programProgressProvider);
+    final filteredCourses = _getFilteredCourses(enrolledPrograms);
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -83,26 +55,32 @@ class _MyCoursesPageState extends State<MyCoursesPage> {
       ),
       body: Column(
         children: [
-          _buildHeader(colorScheme),
+          _buildHeader(colorScheme, enrolledPrograms, programProgress),
           _buildFilterTabs(colorScheme),
           Expanded(
-            child: _filteredCourses.isEmpty
+            child: filteredCourses.isEmpty
                 ? _buildEmptyState(colorScheme)
-                : _buildCoursesList(),
+                : _buildCoursesList(filteredCourses),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildHeader(ColorScheme colorScheme) {
-    final totalCourses = _enrolledCourses.length;
-    final inProgressCourses = _enrolledCourses
-        .where((c) => c.progress > 0 && c.progress < 100)
-        .length;
-    final completedCourses = _enrolledCourses
-        .where((c) => c.isCompleted)
-        .length;
+  Widget _buildHeader(
+    ColorScheme colorScheme,
+    List<Program> enrolledPrograms,
+    Map<String, double> programProgress,
+  ) {
+    final totalCourses = enrolledPrograms.length;
+    final inProgressCourses = enrolledPrograms.where((p) {
+      final progress = programProgress[p.id] ?? 0.0;
+      return progress > 0 && progress < 100;
+    }).length;
+    final completedCourses = enrolledPrograms.where((p) {
+      final progress = programProgress[p.id] ?? 0.0;
+      return progress >= 100;
+    }).length;
 
     return Container(
       margin: const EdgeInsets.all(16),
@@ -287,12 +265,12 @@ class _MyCoursesPageState extends State<MyCoursesPage> {
     );
   }
 
-  Widget _buildCoursesList() {
+  Widget _buildCoursesList(List<Program> courses) {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: _filteredCourses.length,
+      itemCount: courses.length,
       itemBuilder: (context, index) {
-        return _CourseCard(enrolledCourse: _filteredCourses[index]);
+        return _CourseCard(program: courses[index]);
       },
     );
   }
@@ -310,16 +288,19 @@ enum CourseFilter {
   completed,
 }
 
-class _CourseCard extends StatelessWidget {
-  const _CourseCard({required this.enrolledCourse});
+class _CourseCard extends ConsumerWidget {
+  const _CourseCard({required this.program});
 
-  final EnrolledCourse enrolledCourse;
+  final Program program;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final program = enrolledCourse.program;
+    final programProgress = ref.watch(programProgressProvider);
+    final lastModuleIndex = ref.watch(lastModuleIndexProvider);
+    final progress = programProgress[program.id] ?? 0.0;
+    final lastModule = lastModuleIndex[program.id] ?? 0;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -339,15 +320,15 @@ class _CourseCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildThumbnail(colorScheme),
-            _buildContent(context, colorScheme),
+            _buildThumbnail(colorScheme, progress),
+            _buildContent(context, colorScheme, progress, lastModule, ref),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildThumbnail(ColorScheme colorScheme) {
+  Widget _buildThumbnail(ColorScheme colorScheme, double progress) {
     return Stack(
       children: [
         ClipRRect(
@@ -355,7 +336,7 @@ class _CourseCard extends StatelessWidget {
           child: AspectRatio(
             aspectRatio: 16 / 9,
             child: Image.asset(
-              enrolledCourse.program.thumbnailPath,
+              program.thumbnailPath,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
@@ -372,7 +353,7 @@ class _CourseCard extends StatelessWidget {
             ),
           ),
         ),
-        if (enrolledCourse.isCompleted)
+        if (progress >= 100)
           Positioned(
             top: 12,
             right: 12,
@@ -403,14 +384,20 @@ class _CourseCard extends StatelessWidget {
     );
   }
 
-  Widget _buildContent(BuildContext context, ColorScheme colorScheme) {
+  Widget _buildContent(
+    BuildContext context,
+    ColorScheme colorScheme,
+    double progress,
+    int lastModule,
+    WidgetRef ref,
+  ) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            enrolledCourse.program.name,
+            program.name,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -421,27 +408,13 @@ class _CourseCard extends StatelessWidget {
           Row(
             children: [
               Icon(
-                Icons.access_time,
-                size: 16,
-                color: colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
-              const SizedBox(width: 4),
-              Text(
-                '${enrolledCourse.hoursSpent}h spent',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Icon(
                 Icons.layers,
                 size: 16,
                 color: colorScheme.onSurface.withValues(alpha: 0.6),
               ),
               const SizedBox(width: 4),
               Text(
-                '${enrolledCourse.completedModules}/${enrolledCourse.totalModules} modules',
+                'Module ${lastModule + 1}/${program.modules.length}',
                 style: TextStyle(
                   fontSize: 14,
                   color: colorScheme.onSurface.withValues(alpha: 0.6),
@@ -468,7 +441,7 @@ class _CourseCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '${enrolledCourse.progress.toInt()}%',
+                          '${progress.toInt()}%',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -481,13 +454,11 @@ class _CourseCard extends StatelessWidget {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: LinearProgressIndicator(
-                        value: enrolledCourse.progress / 100,
+                        value: progress / 100,
                         minHeight: 8,
                         backgroundColor: colorScheme.surfaceContainerHighest,
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          enrolledCourse.isCompleted
-                              ? Colors.green
-                              : colorScheme.primary,
+                          progress >= 100 ? Colors.green : colorScheme.primary,
                         ),
                       ),
                     ),
@@ -502,17 +473,23 @@ class _CourseCard extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (context) =>
-                      ProgramDetailPage(program: enrolledCourse.program),
+                  builder: (context) => ModuleContentScreen(
+                    modules: program.modules,
+                    initialModuleIndex: lastModule,
+                    programName: program.name,
+                    programId: program.id,
+                  ),
                 ),
               );
             },
             size: ShadButtonSize.sm,
             width: double.infinity,
             child: Text(
-              enrolledCourse.isCompleted
+              progress >= 100
                   ? 'Review Course'
-                  : 'Continue Learning',
+                  : lastModule > 0
+                  ? 'Continue Learning'
+                  : 'Start Course',
             ),
           ),
         ],

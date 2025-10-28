@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/auth/screens/signup_page.dart';
 import 'features/auth/screens/forgot_password_page.dart';
 import 'app/screens/main_navigation.dart';
 import 'core/screens/notifications_page.dart';
+import 'core/services/storage_service.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize storage service before running the app
+  // This must complete before ProviderScope is created
+  await StorageService.initialize();
+
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -35,7 +43,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ShadBlueColorScheme.dark(),
         brightness: Brightness.dark,
       ),
-      themeMode: ThemeMode.dark,
+      themeMode: ThemeMode.light,
     );
   }
 }
