@@ -5,18 +5,53 @@ import '../../programs/models/program.dart';
 import '../../programs/screens/program_detail_page.dart';
 import '../data/mock_user_stats.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<Program> _allPrograms = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPrograms();
+  }
+
+  Future<void> _loadPrograms() async {
+    try {
+      final programs = await loadPrograms();
+      setState(() {
+        _allPrograms = programs;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final PageController newCoursesController = PageController();
     final PageController recommendedController = PageController();
 
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: Colors.grey[100],
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     // Get the first 3 programs for new courses
-    final newPrograms = mockPrograms.take(3).toList();
+    final newPrograms = _allPrograms.take(3).toList();
     // Get the last 3 programs for recommendations
-    final recommendedPrograms = mockPrograms.skip(3).take(3).toList();
+    final recommendedPrograms = _allPrograms.skip(3).take(3).toList();
 
     return Scaffold(
       backgroundColor: Colors.grey[100],

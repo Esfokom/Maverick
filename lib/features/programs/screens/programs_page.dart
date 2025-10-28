@@ -13,7 +13,35 @@ class ProgramsPage extends StatefulWidget {
 
 class _ProgramsPageState extends State<ProgramsPage> {
   final TextEditingController _searchController = TextEditingController();
-  List<Program> _filteredPrograms = mockPrograms;
+  List<Program> _allPrograms = [];
+  List<Program> _filteredPrograms = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPrograms();
+  }
+
+  Future<void> _loadPrograms() async {
+    try {
+      final programs = await loadPrograms();
+      setState(() {
+        _allPrograms = programs;
+        _filteredPrograms = programs;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading programs: $e')));
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -24,9 +52,9 @@ class _ProgramsPageState extends State<ProgramsPage> {
   void _filterPrograms(String query) {
     setState(() {
       if (query.isEmpty) {
-        _filteredPrograms = mockPrograms;
+        _filteredPrograms = _allPrograms;
       } else {
-        _filteredPrograms = mockPrograms.where((program) {
+        _filteredPrograms = _allPrograms.where((program) {
           final nameLower = program.name.toLowerCase();
           final descLower = program.shortDescription.toLowerCase();
           final searchLower = query.toLowerCase();
@@ -45,7 +73,9 @@ class _ProgramsPageState extends State<ProgramsPage> {
         children: [
           _buildSearchBar(),
           Expanded(
-            child: _filteredPrograms.isEmpty
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _filteredPrograms.isEmpty
                 ? _buildEmptyState()
                 : _buildProgramsList(),
           ),

@@ -16,17 +16,44 @@ class MyCoursesPage extends StatefulWidget {
 
 class _MyCoursesPageState extends State<MyCoursesPage> {
   CourseFilter _currentFilter = CourseFilter.all;
+  List<EnrolledCourse> _enrolledCourses = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCourses();
+  }
+
+  Future<void> _loadCourses() async {
+    try {
+      final courses = await loadEnrolledCourses();
+      setState(() {
+        _enrolledCourses = courses;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading courses: $e')));
+      }
+    }
+  }
 
   List<EnrolledCourse> get _filteredCourses {
     switch (_currentFilter) {
       case CourseFilter.all:
-        return mockEnrolledCourses;
+        return _enrolledCourses;
       case CourseFilter.inProgress:
-        return mockEnrolledCourses
+        return _enrolledCourses
             .where((c) => c.progress > 0 && c.progress < 100)
             .toList();
       case CourseFilter.completed:
-        return mockEnrolledCourses.where((c) => c.isCompleted).toList();
+        return _enrolledCourses.where((c) => c.isCompleted).toList();
     }
   }
 
@@ -34,6 +61,18 @@ class _MyCoursesPageState extends State<MyCoursesPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: colorScheme.surface,
+        appBar: AppBar(
+          title: const Text('My Courses'),
+          backgroundColor: colorScheme.surface,
+          elevation: 0,
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -57,11 +96,11 @@ class _MyCoursesPageState extends State<MyCoursesPage> {
   }
 
   Widget _buildHeader(ColorScheme colorScheme) {
-    final totalCourses = mockEnrolledCourses.length;
-    final inProgressCourses = mockEnrolledCourses
+    final totalCourses = _enrolledCourses.length;
+    final inProgressCourses = _enrolledCourses
         .where((c) => c.progress > 0 && c.progress < 100)
         .length;
-    final completedCourses = mockEnrolledCourses
+    final completedCourses = _enrolledCourses
         .where((c) => c.isCompleted)
         .length;
 

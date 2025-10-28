@@ -207,7 +207,7 @@ class ProfilePage extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _buildProgramItem(
-            mockPrograms[0].name,
+            mockUserStats.currentProgramName,
             '${mockUserStats.currentProgramProgress.toInt()}% Complete',
             mockUserStats.currentProgramProgress / 100,
             colorScheme,

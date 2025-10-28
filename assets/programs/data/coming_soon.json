@@ -1,0 +1,42 @@
+[
+  {
+    "id": "4",
+    "name": "Data Driver",
+    "shortDescription": "Transform data into actionable insights and business value",
+    "fullDescription": "Master the art and science of data analytics and data science. Learn to collect, process, analyze, and visualize data to drive business decisions using modern tools and techniques.",
+    "duration": "11 weeks",
+    "difficulty": "beginner",
+    "thumbnailPath": "assets/programs/data.webp",
+    "author": "Maria Santos",
+    "authorBio": "Data scientist with a background in statistics and 8 years of experience in business intelligence. Published researcher and former analytics director at startups.",
+    "isComingSoon": true,
+    "modules": []
+  },
+  {
+    "id": "5",
+    "name": "The DevOps Pipeline",
+    "shortDescription": "Master CI/CD, automation, and modern software delivery",
+    "fullDescription": "Learn to bridge development and operations with modern DevOps practices. Master continuous integration, continuous deployment, infrastructure as code, and container orchestration.",
+    "duration": "9 weeks",
+    "difficulty": "intermediate",
+    "thumbnailPath": "assets/programs/devops.webp",
+    "author": "Kumar Patel",
+    "authorBio": "DevOps engineer with expertise in Kubernetes, Docker, and cloud automation. 12 years of experience scaling infrastructure for high-traffic applications.",
+    "isComingSoon": true,
+    "modules": []
+  },
+  {
+    "id": "6",
+    "name": "The Full-Stack Accelerator",
+    "shortDescription": "Build complete web applications from front-end to back-end",
+    "fullDescription": "Become a versatile full-stack developer capable of building modern web applications end-to-end. Learn front-end frameworks, back-end technologies, databases, and deployment strategies.",
+    "duration": "16 weeks",
+    "difficulty": "beginner",
+    "thumbnailPath": "assets/programs/fullstack.webp",
+    "author": "Emily Zhang",
+    "authorBio": "Full-stack developer and educator with 9 years of experience. Former lead developer at tech startups and passionate about teaching modern web development.",
+    "isComingSoon": true,
+    "modules": []
+  }
+]
+
