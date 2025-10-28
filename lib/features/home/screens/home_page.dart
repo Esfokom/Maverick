@@ -40,10 +40,11 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final PageController newCoursesController = PageController();
     final PageController recommendedController = PageController();
+    final colorScheme = Theme.of(context).colorScheme;
 
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: Colors.grey[100],
+        backgroundColor: colorScheme.surface,
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -54,10 +55,10 @@ class _HomePageState extends State<HomePage> {
     final recommendedPrograms = _allPrograms.skip(3).take(3).toList();
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
+        backgroundColor: colorScheme.surface,
         elevation: 0,
         title: Row(
           children: [
@@ -70,9 +71,12 @@ class _HomePageState extends State<HomePage> {
               child: TextField(
                 decoration: InputDecoration(
                   hintText: "Search for courses",
-                  prefixIcon: const Icon(Icons.search),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                   filled: true,
-                  fillColor: Colors.grey[200],
+                  fillColor: colorScheme.surfaceContainerHighest,
                   contentPadding: const EdgeInsets.symmetric(vertical: 0),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30),
@@ -83,7 +87,10 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(width: 10),
             IconButton(
-              icon: const Icon(Icons.notifications_none, color: Colors.black),
+              icon: Icon(
+                Icons.notifications_none,
+                color: colorScheme.onSurface,
+              ),
               onPressed: () => Navigator.pushNamed(context, '/notifications'),
             ),
           ],
@@ -159,11 +166,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildGreetingSection() {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.blue[700]!, Colors.blue[500]!],
+          colors: [colorScheme.primary, colorScheme.primaryContainer],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -174,16 +182,19 @@ class _HomePageState extends State<HomePage> {
         children: [
           Text(
             'Hello, ${mockUserStats.userName}! 👋',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: colorScheme.onPrimary,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'What do you want to learn today?',
-            style: TextStyle(fontSize: 16, color: Colors.white70),
+            style: TextStyle(
+              fontSize: 16,
+              color: colorScheme.onPrimary.withValues(alpha: 0.8),
+            ),
           ),
         ],
       ),
@@ -191,14 +202,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildCurrentCourseProgress() {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
+            color: colorScheme.shadow.withValues(alpha: 0.1),
             spreadRadius: 1,
             blurRadius: 4,
             offset: const Offset(0, 2),
@@ -211,16 +223,20 @@ class _HomePageState extends State<HomePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Current Program',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
+                ),
               ),
               Text(
                 '${mockUserStats.currentProgramProgress.toInt()}%',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.blue[700],
+                  color: colorScheme.primary,
                 ),
               ),
             ],
@@ -228,7 +244,7 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 8),
           Text(
             mockUserStats.currentProgramName,
-            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 12),
           ClipRRect(
@@ -236,8 +252,8 @@ class _HomePageState extends State<HomePage> {
             child: LinearProgressIndicator(
               value: mockUserStats.currentProgramProgress / 100,
               minHeight: 8,
-              backgroundColor: Colors.grey[200],
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue[700]!),
+              backgroundColor: colorScheme.surfaceContainerHighest,
+              valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
             ),
           ),
         ],
@@ -284,14 +300,15 @@ class _HomePageState extends State<HomePage> {
     String label,
     Color color,
   ) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
+            color: colorScheme.shadow.withValues(alpha: 0.1),
             spreadRadius: 1,
             blurRadius: 4,
             offset: const Offset(0, 2),
@@ -304,12 +321,16 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
             label,
-            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
         ],
@@ -318,6 +339,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildProgramCard(BuildContext context, Program program) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: GestureDetector(
@@ -339,9 +361,13 @@ class _HomePageState extends State<HomePage> {
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
-                    color: Colors.grey[300],
-                    child: const Center(
-                      child: Icon(Icons.image_not_supported, size: 48),
+                    color: colorScheme.surfaceContainerHighest,
+                    child: Center(
+                      child: Icon(
+                        Icons.image_not_supported,
+                        size: 48,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   );
                 },

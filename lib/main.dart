@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ShadBlueColorScheme.dark(),
         brightness: Brightness.dark,
       ),
-      themeMode: ThemeMode.light,
+      themeMode: ThemeMode.dark,
     );
   }
 }
