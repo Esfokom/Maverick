@@ -38,10 +38,11 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.pushReplacementNamed(context, '/home');
     } catch (e) {
       if (!mounted) return;
+      final colorScheme = Theme.of(context).colorScheme;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Could not sign in. Please try again.'),
-          backgroundColor: Colors.red.shade600,
+          content: const Text('Could not sign in. Please try again.'),
+          backgroundColor: colorScheme.error,
         ),
       );
     } finally {
@@ -65,9 +66,10 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colorScheme.surface,
       body: SafeArea(
         child: Stack(
           children: [
@@ -154,17 +156,17 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: _isLoading
                               ? Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
+                                  children: [
                                     SizedBox(
                                       width: 18,
                                       height: 18,
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2.4,
-                                        color: Colors.white,
+                                        color: colorScheme.onPrimary,
                                       ),
                                     ),
-                                    SizedBox(width: 12),
-                                    Text('Signing in...'),
+                                    const SizedBox(width: 12),
+                                    const Text('Signing in...'),
                                   ],
                                 )
                               : const Text('Sign In'),
@@ -215,7 +217,9 @@ class _LoginScreenState extends State<LoginScreen> {
               Positioned.fill(
                 child: IgnorePointer(
                   ignoring: true,
-                  child: Container(color: Colors.black.withOpacity(0.04)),
+                  child: Container(
+                    color: colorScheme.shadow.withValues(alpha: 0.04),
+                  ),
                 ),
               ),
           ],

@@ -13,6 +13,9 @@ Future<List<Program>> loadPrograms() async {
     'assets/programs/data/ai_engineer_pathway.json',
     'assets/programs/data/cloud_architect_program.json',
     'assets/programs/data/cyber_sentinel.json',
+    'assets/programs/data/data_driver.json',
+    'assets/programs/data/devops_pipeline.json',
+    'assets/programs/data/fullstack_accelerator.json',
   ];
 
   for (final path in fullProgramPaths) {
@@ -23,20 +26,6 @@ Future<List<Program>> loadPrograms() async {
     } catch (e) {
       print('Error loading program from $path: $e');
     }
-  }
-
-  // Load coming soon programs
-  try {
-    final comingSoonJson = await rootBundle.loadString(
-      'assets/programs/data/coming_soon.json',
-    );
-    final comingSoonList = json.decode(comingSoonJson) as List<dynamic>;
-
-    for (final programData in comingSoonList) {
-      programs.add(Program.fromJson(programData as Map<String, dynamic>));
-    }
-  } catch (e) {
-    print('Error loading coming soon programs: $e');
   }
 
   return programs;

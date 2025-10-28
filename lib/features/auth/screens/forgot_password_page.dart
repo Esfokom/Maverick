@@ -41,10 +41,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       );
     } catch (e) {
       if (!mounted) return;
+      final colorScheme = Theme.of(context).colorScheme;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Could not send reset link. Please try again.'),
-          backgroundColor: Colors.red.shade600,
+          backgroundColor: colorScheme.error,
         ),
       );
     } finally {
@@ -54,8 +55,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colorScheme.surface,
       body: SafeArea(
         child: Stack(
           children: [
@@ -96,17 +98,17 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           child: _isLoading
                               ? Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
+                                  children: [
                                     SizedBox(
                                       width: 18,
                                       height: 18,
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2.4,
-                                        color: Colors.white,
+                                        color: colorScheme.onPrimary,
                                       ),
                                     ),
-                                    SizedBox(width: 12),
-                                    Text('Sending...'),
+                                    const SizedBox(width: 12),
+                                    const Text('Sending...'),
                                   ],
                                 )
                               : const Text('Send reset link'),
@@ -134,7 +136,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               Positioned.fill(
                 child: IgnorePointer(
                   ignoring: true,
-                  child: Container(color: Colors.black.withOpacity(0.04)),
+                  child: Container(
+                    color: colorScheme.shadow.withValues(alpha: 0.04),
+                  ),
                 ),
               ),
           ],
