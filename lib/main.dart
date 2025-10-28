@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:country_picker/country_picker.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/auth/screens/signup_page.dart';
 import 'features/auth/screens/forgot_password_page.dart';
