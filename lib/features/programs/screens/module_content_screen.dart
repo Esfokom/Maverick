@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/github.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:shadcn_ui/shadcn_ui.dart';
 
@@ -161,35 +162,53 @@ class _ModuleContentScreenState extends State<ModuleContentScreen> {
       data: module.content!,
       builders: {'code': CodeElementBuilder(isDarkMode: isDarkMode)},
       styleSheet: MarkdownStyleSheet(
-        h1: TextStyle(
-          fontSize: 28,
+        h1: GoogleFonts.poppins(
+          fontSize: 32,
           fontWeight: FontWeight.bold,
           color: colorScheme.onSurface,
+          height: 1.3,
+          letterSpacing: -0.5,
         ),
-        h2: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
+        h2: GoogleFonts.poppins(
+          fontSize: 26,
+          fontWeight: FontWeight.w700,
+          color: colorScheme.onSurface,
+          height: 1.4,
+          letterSpacing: -0.3,
+        ),
+        h3: GoogleFonts.poppins(
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
+          color: colorScheme.onSurface,
+          height: 1.4,
+          letterSpacing: -0.2,
+        ),
+        h4: GoogleFonts.poppins(
+          fontSize: 19,
+          fontWeight: FontWeight.w600,
           color: colorScheme.onSurface,
           height: 1.5,
         ),
-        h3: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
+        p: GoogleFonts.inter(
+          fontSize: 16,
           color: colorScheme.onSurface,
+          height: 1.75,
+          letterSpacing: 0.1,
         ),
-        h4: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: colorScheme.onSurface,
-        ),
-        p: TextStyle(fontSize: 16, color: colorScheme.onSurface, height: 1.6),
-        code: TextStyle(
+        h1Padding: const EdgeInsets.only(top: 24, bottom: 16),
+        h2Padding: const EdgeInsets.only(top: 20, bottom: 12),
+        h3Padding: const EdgeInsets.only(top: 16, bottom: 10),
+        h4Padding: const EdgeInsets.only(top: 14, bottom: 8),
+        pPadding: const EdgeInsets.only(bottom: 16),
+        listIndent: 24,
+        listBulletPadding: const EdgeInsets.only(right: 8),
+        code: GoogleFonts.jetBrainsMono(
           backgroundColor: isDarkMode
               ? const Color(0xFF1F2937)
               : const Color(0xFFF6F8FA),
           color: isDarkMode ? const Color(0xFFE5E7EB) : const Color(0xFF24292F),
-          fontFamily: 'monospace',
           fontSize: 14,
+          fontWeight: FontWeight.w500,
         ),
         codeblockDecoration: BoxDecoration(
           color: isDarkMode ? const Color(0xFF0D1117) : const Color(0xFFF6F8FA),
@@ -442,10 +461,10 @@ class CodeElementBuilder extends MarkdownElementBuilder {
               language: language,
               theme: isDarkMode ? _githubDarkTheme : githubTheme,
               padding: const EdgeInsets.all(16),
-              textStyle: const TextStyle(
-                fontFamily: 'monospace',
+              textStyle: GoogleFonts.jetBrainsMono(
                 fontSize: 14,
                 height: 1.5,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
